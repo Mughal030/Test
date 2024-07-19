@@ -1,0 +1,43 @@
+name: Setup Linux Remote Desktop
+
+on: [push]
+
+jobs:
+  setup-rdp:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install desktop environment and xrdp
+        run: |
+          sudo apt update
+          sudo apt install -y xfce4 xfce4-goodies xrdp
+          sudo systemctl enable xrdp
+          sudo systemctl start xrdp
+          echo "xfce4-session" > ~/.xsession
+
+      - name: Setup RDP user
+        run: |
+          sudo adduser --disabled-password --gecos "" runneradmin
+          echo "runneradmin:@cyb3king" | sudo chpasswd
+          sudo adduser runneradmin sudo
+          sudo mkdir -p /home/runneradmin/.xsession
+          echo "xfce4-session" > /home/runneradmin/.xsession
+          sudo chown runneradmin:runneradmin /home/runneradmin/.xsession
+
+      - name: Create RDP file
+        run: |
+          echo 'full address:s:127.0.0.1:3389' > ~/linux-remote-desktop.rdp
+          echo 'username:s:runneradmin' >> ~/linux-remote-desktop.rdp
+          echo 'password:s:@cyb3king' >> ~/linux-remote-desktop.rdp
+          echo 'server port:i:3389' >> ~/linux-remote-desktop.rdp
+          echo 'screen mode id:i:2' >> ~/linux-remote-desktop.rdp
+          echo 'session bpp:i:32' >> ~/linux-remote-desktop.rdp
+
+      - name: Upload RDP file
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux-remote-desktop
+          path: ~/linux-remote-desktop.rdp
