@@ -44,6 +44,11 @@ jobs:
         run: |
           nohup ngrok tcp 3389 --log=stdout > ngrok.log &
           sleep 10
+          cat ngrok.log
+          curl --silent --show-error http://127.0.0.1:4040/api/tunnels
+
+      - name: Get Ngrok URL
+        run: |
           NGROK_URL=$(curl --silent --show-error http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://.*.ngrok.io:[0-9]*')
           echo "Ngrok URL: $NGROK_URL"
           echo $NGROK_URL > ngrok_url.txt
