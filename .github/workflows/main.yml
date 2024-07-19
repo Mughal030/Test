@@ -20,12 +20,16 @@ jobs:
 
       - name: Setup RDP user
         run: |
-          sudo adduser --disabled-password --gecos "" runneradmin
-          echo "runneradmin:@cyb3king" | sudo chpasswd
-          sudo adduser runneradmin sudo
-          sudo mkdir -p /home/runneradmin/.xsession
-          echo "xfce4-session" > /home/runneradmin/.xsession
-          sudo chown runneradmin:runneradmin /home/runneradmin/.xsession
+          if id "runneradmin" &>/dev/null; then
+              echo "User runneradmin already exists"
+          else
+              sudo adduser --disabled-password --gecos "" runneradmin
+              echo "runneradmin:@cyb3king" | sudo chpasswd
+              sudo adduser runneradmin sudo
+              sudo mkdir -p /home/runneradmin/.xsession
+              echo "xfce4-session" > /home/runneradmin/.xsession
+              sudo chown runneradmin:runneradmin /home/runneradmin/.xsession
+          fi
 
       - name: Create RDP file
         run: |
