@@ -39,12 +39,13 @@ jobs:
 
       - name: Configure Google Remote Desktop
         run: |
-          sudo -u runneradmin bash -c 'DISPLAY= /opt/google/chrome-remote-desktop/start-host --code="4/0AcvDMrBLaY62yd4UgFGqLgoWC0okmE47aZJjD_lZKzK_pAuT9RUNJ_87VYJ3m0MTVHgf9w" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$(hostname)'
+          sudo -u runneradmin bash -c 'DISPLAY= /opt/google/chrome-remote-desktop/start-host --code="4/0AcvDMrBLaY62yd4UgFGqLgoWC0okmE47aZJjD_lZKzK_pAuT9RUNJ_87VYJ3m0MTVHgf9w" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$(hostname)"'
 
-      - name: Set up the PIN for Chrome Remote Desktop
+      - name: Set the PIN for Google Remote Desktop
         run: |
-          sudo -u runneradmin bash -c 'echo "123456" | /opt/google/chrome-remote-desktop/chrome-remote-desktop --pin'
-          
+          echo "123456" | sudo tee /opt/google/chrome-remote-desktop/pin.conf > /dev/null
+          sudo systemctl restart chrome-remote-desktop@$USER
+
       - name: Create RDP file
         run: |
           echo 'full address:s:127.0.0.1:3389' > ~/linux-remote-desktop.rdp
