@@ -39,7 +39,7 @@ jobs:
 
       - name: Configure Google Remote Desktop
         run: |
-          sudo -u runneradmin bash -c 'DISPLAY= /opt/google/chrome-remote-desktop/start-host --code="4/0AcvDMrBLaY62yd4UgFGqLgoWC0okmE47aZJjD_lZKzK_pAuT9RUNJ_87VYJ3m0MTVHgf9w" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$(hostname)"'
+          sudo -u runneradmin bash -c 'DISPLAY= /opt/google/chrome-remote-desktop/start-host --code="4/0AcvDMrBLaY62yd4UgFGqLgoWC0okmE47aZJjD_lZKzK_pAuT9RUNJ_87VYJ3m0MTVHgf9w" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$(hostname)'
 
       - name: Set the PIN for Google Remote Desktop
         run: |
