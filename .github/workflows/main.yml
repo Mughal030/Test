@@ -31,6 +31,20 @@ jobs:
               sudo chown runneradmin:runneradmin /home/runneradmin/.xsession
           fi
 
+      - name: Install Google Chrome Remote Desktop
+        run: |
+          wget https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
+          sudo dpkg -i chrome-remote-desktop_current_amd64.deb || sudo apt-get install -f -y
+          sudo apt-get install -y xfce4-session
+
+      - name: Configure Google Remote Desktop
+        run: |
+          sudo -u runneradmin bash -c 'DISPLAY= /opt/google/chrome-remote-desktop/start-host --code="4/0AcvDMrBLaY62yd4UgFGqLgoWC0okmE47aZJjD_lZKzK_pAuT9RUNJ_87VYJ3m0MTVHgf9w" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$(hostname)'
+          sudo -u runneradmin bash -c 'echo -e "[Unit]\nDescription=Google Chrome Remote Desktop host setup\nAfter=network.target\n[Service]\nType=forking\nExecStart=/opt/google/chrome-remote-desktop/start-host --pin=123456\n[Install]\nWantedBy=default.target" | sudo tee /etc/systemd/system/chrome-remote-desktop@runneradmin.service'
+          sudo systemctl daemon-reload
+          sudo systemctl enable chrome-remote-desktop@runneradmin
+          sudo systemctl start chrome-remote-desktop@runneradmin
+
       - name: Create RDP file
         run: |
           echo 'full address:s:127.0.0.1:3389' > ~/linux-remote-desktop.rdp
