@@ -1,4 +1,4 @@
-2aZXezLqBOUh2vOrPxSDHtk49ry_51D44xXFnoBwjyrNwxsYS: Setup Linux Remote Desktop
+name: Setup Linux Remote Desktop
 
 on: [push]
 
@@ -31,32 +31,23 @@ jobs:
               sudo chown runneradmin:runneradmin /home/runneradmin/.xsession
           fi
 
-      - name: Install Google Chrome Remote Desktop
+      - name: Install Ngrok
         run: |
-          wget https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
-          sudo dpkg -i chrome-remote-desktop_current_amd64.deb || sudo apt-get install -f -y
-          sudo apt-get install -y xfce4-session
+          wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+          unzip ngrok-stable-linux-amd64.zip
+          sudo mv ngrok /usr/local/bin
 
-      - name: Configure Google Remote Desktop
+      - name: Start Ngrok
         run: |
-          sudo -u runneradmin bash -c 'DISPLAY= /opt/google/chrome-remote-desktop/start-host --code="4/0AcvDMrBLaY62yd4UgFGqLgoWC0okmE47aZJjD_lZKzK_pAuT9RUNJ_87VYJ3m0MTVHgf9w" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$(hostname)'
+          ngrok authtoken YOUR_NGROK_AUTH_TOKEN
+          ngrok tcp 3389 --log=stdout > ngrok.log &
+          sleep 10
+          NGROK_URL=$(curl --silent --show-error http://127.0.0.1:4040/api/tunnels | grep -o 'tcp://.*.ngrok.io:[0-9]*')
+          echo "Ngrok URL: $NGROK_URL"
+          echo $NGROK_URL > ngrok_url.txt
 
-      - name: Set the PIN for Google Remote Desktop
-        run: |
-          echo "123456" | sudo tee /opt/google/chrome-remote-desktop/pin.conf > /dev/null
-          sudo systemctl restart chrome-remote-desktop@$USER
-
-      - name: Create RDP file
-        run: |
-          echo 'full address:s:127.0.0.1:3389' > ~/linux-remote-desktop.rdp
-          echo 'username:s:runneradmin' >> ~/linux-remote-desktop.rdp
-          echo 'password:s:@cyb3king' >> ~/linux-remote-desktop.rdp
-          echo 'server port:i:3389' >> ~/linux-remote-desktop.rdp
-          echo 'screen mode id:i:2' >> ~/linux-remote-desktop.rdp
-          echo 'session bpp:i:32' >> ~/linux-remote-desktop.rdp
-
-      - name: Upload RDP file
+      - name: Upload Ngrok URL
         uses: actions/upload-artifact@v2
         with:
-          name: linux-remote-desktop
-          path: ~/linux-remote-desktop.rdp
+          name: ngrok-url
+          path: ngrok_url.txt
